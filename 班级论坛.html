@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>班级论坛 - 学习交流平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#FF7D00',
+            neutral: '#F5F7FA',
+            'neutral-dark': '#4E5969',
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .user-post {
+        color: theme('colors.primary');
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+  <!-- 导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300" id="navbar">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-comments text-primary text-2xl"></i>
+        <span class="text-xl font-bold text-primary">班级论坛</span>
+      </div>
+      
+      <div class="hidden md:flex items-center space-x-6">
+        <a href="#" class="font-medium text-primary hover:text-primary/80 transition-colors">首页</a>
+        <a href="#" class="font-medium text-gray-600 hover:text-primary transition-colors">学习资料</a>
+        <a href="#" class="font-medium text-gray-600 hover:text-primary transition-colors">活动公告</a>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <button id="loginBtn" class="hidden md:block px-4 py-2 text-primary border border-primary rounded-full hover:bg-primary/5 transition-colors">登录</button>
+        
+        <button id="registerBtn" class="hidden md:block px-4 py-2 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors shadow-md shadow-primary/20">注册</button>
+        
+        <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-primary">
+          <i class="fa fa-bars text-xl"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div id="mobileMenu" class="md:hidden hidden bg-white border-t border-gray-100">
+      <div class="container mx-auto px-4 py-3 space-y-3">
+        <a href="#" class="block py-2 font-medium text-primary">首页</a>
+        <a href="#" class="block py-2 font-medium text-gray-600">学习资料</a>
+        <a href="#" class="block py-2 font-medium text-gray-600">活动公告</a>
+        <div class="flex space-x-3 pt-2">
+          <button id="mobileLoginBtn" class="flex-1 px-4 py-2 text-primary border border-primary rounded-full hover:bg-primary/5 transition-colors">
+            登录
+          </button>
+          <button id="mobileRegisterBtn" class="flex-1 px-4 py-2 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors shadow-md shadow-primary/20">
+            注册
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <!-- 发布帖子区域 -->
+    <div class="bg-white rounded-xl shadow-sm p-5 mb-6 transform transition-all duration-300 hover:shadow-md">
+      <div class="flex items-start space-x-4">
+        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <i class="fa fa-user text-primary"></i>
+        </div>
+        <div class="flex-grow">
+          <textarea id="postContent" placeholder="分享你的想法、问题或资源..." class="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none" rows="3"></textarea>
+          <div class="flex justify-between items-center mt-3">
+            <div class="flex space-x-2">
+              <button id="addImageBtn" class="flex items-center text-gray-500 hover:text-primary p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <i class="fa fa-image mr-1"></i>
+                <span class="text-sm">图片</span>
+              </button>
+              <button id="addLinkBtn" class="flex items-center text-gray-500 hover:text-primary p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <i class="fa fa-link mr-1"></i>
+                <span class="text-sm">链接</span>
+              </button>
+            </div>
+            <select id="postCategory" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+              <option value="all">所有分类</option>
+              <option value="study">学习讨论</option>
+              <option value="activity">班级活动</option>
+              <option value="notice">公告通知</option>
+            </select>
+            <button id="submitPostBtn" class="px-5 py-1.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-md shadow-primary/20">
+              发布
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 帖子列表 -->
+    <div id="postsContainer" class="space-y-6">
+      <!-- 示例帖子已删除 -->
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-white border-t border-gray-200 py-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <p class="text-sm text-gray-500 mb-4 md:mb-0">© 2025 班级论坛. 保留所有权利.</p>
+        <div class="flex space-x-6">
+          <a href="#" class="text-sm text-gray-500 hover:text-primary transition-colors">隐私政策</a>
+          <a href="#" class="text-sm text-gray-500 hover:text-primary transition-colors">使用条款</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 登录模态框 -->
+  <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold">用户登录</h3>
+        <button id="closeLoginModal" class="text-gray-400 hover:text-gray-600">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      <form>
+        <div class="mb-4">
+          <label for="login_username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+          <input type="text" id="login_username" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="请输入用户名">
+        </div>
+        <div class="mb-4">
+          <label for="login_password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+          <input type="password" id="login_password" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="请输入密码">
+        </div>
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center">
+            <input type="checkbox" id="login_remember" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+            <label for="login_remember" class="ml-2 text-sm text-gray-600">记住我</label>
+          </div>
+          <a href="#" class="text-sm text-primary hover:text-primary/80">忘记密码?</a>
+        </div>
+        <button type="button" id="loginSubmitBtn" class="w-full py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-md shadow-primary/20 mb-3">
+          登录
+        </button>
+        <div class="text-center">
+          <span class="text-sm text-gray-600">还没有账号?</span>
+          <a href="#" class="text-sm text-primary hover:text-primary/80" id="showRegister">立即注册</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 注册模态框 -->
+  <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all duration-300 scale-95 opacity-0" id="registerModalContent">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold">用户注册</h3>
+        <button id="closeRegisterModal" class="text-gray-400 hover:text-gray-600">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      <form>
+        <div class="mb-4">
+          <label for="reg_username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+          <input type="text" id="reg_username" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="请输入用户名">
+        </div>
+        <div class="mb-4">
+          <label for="reg_password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+          <input type="password" id="reg_password" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="请输入密码">
+        </div>
+        <div class="mb-4">
+          <label for="reg_confirm_password" class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+          <input type="password" id="reg_confirm_password" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="请再次输入密码">
+        </div>
+        <div class="mb-6">
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input id="agreement" name="agreement" type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="agreement" class="text-gray-600">我已阅读并同意<a href="#" class="text-primary hover:text-primary/80">用户协议</a>和<a href="#" class="text-primary hover:text-primary/80">隐私政策</a></label>
+            </div>
+          </div>
+        </div>
+        <button type="button" id="registerSubmitBtn" class="w-full py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-md shadow-primary/20 mb-3">
+          注册
+        </button>
+        <div class="text-center">
+          <span class="text-sm text-gray-600">已有账号?</span>
+          <a href="#" class="text-sm text-primary hover:text-primary/80" id="showLogin">立即登录</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 通知组件 -->
+  <div id="notificationContainer" class="fixed top-4 right-4 z-50"></div>
+
+  <script>
+    // 存储已注册用户的对象
+    const registeredUsers = {};
+    let currentUser = null;
+    
+    // DOM元素
+    const navbar = document.getElementById('navbar');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const mobileRegisterBtn = document.getElementById('mobileRegisterBtn');
+    const loginModal = document.getElementById('loginModal');
+    const registerModal = document.getElementById('registerModal');
+    const modalContent = document.getElementById('modalContent');
+    const registerModalContent = document.getElementById('registerModalContent');
+    const closeLoginModal = document.getElementById('closeLoginModal');
+    const closeRegisterModal = document.getElementById('closeRegisterModal');
+    const showRegister = document.getElementById('showRegister');
+    const showLogin = document.getElementById('showLogin');
+    const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+    const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+    const submitPostBtn = document.getElementById('submitPostBtn');
+    const postContent = document.getElementById('postContent');
+    const postCategory = document.getElementById('postCategory');
+    const postsContainer = document.getElementById('postsContainer');
+    const notificationContainer = document.getElementById('notificationContainer');
+    
+    // 滚动事件处理
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 10) {
+        navbar.classList.add('py-2', 'shadow');
+        navbar.classList.remove('py-3');
+      } else {
+        navbar.classList.add('py-3');
+        navbar.classList.remove('py-2', 'shadow');
+      }
+    });
+    
+    // 移动端菜单切换
+    mobileMenuBtn.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 打开登录模态框
+    function openLoginModal() {
+      loginModal.classList.remove('hidden');
+      setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+    
+    // 关闭登录模态框
+    function closeLoginModalFunc() {
+      modalContent.classList.remove('scale-100', 'opacity-100');
+      modalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        loginModal.classList.add('hidden');
+      }, 300);
+    }
+    
+    // 打开注册模态框
+    function openRegisterModal() {
+      registerModal.classList.remove('hidden');
+      setTimeout(() => {
+        registerModalContent.classList.remove('scale-95', 'opacity-0');
+        registerModalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+    
+    // 关闭注册模态框
+    function closeRegisterModalFunc() {
+      registerModalContent.classList.remove('scale-100', 'opacity-100');
+      registerModalContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        registerModal.classList.add('hidden');
+      }, 300);
+    }
+    
+    // 登录按钮事件
+    loginBtn.addEventListener('click', openLoginModal);
+    mobileLoginBtn.addEventListener('click', openLoginModal);
+    
+    // 注册按钮事件
+    registerBtn.addEventListener('click', openRegisterModal);
+    mobileRegisterBtn.addEventListener('click', openRegisterModal);
+    
+    // 关闭模态框事件
+    closeLoginModal.addEventListener('click', closeLoginModalFunc);
+    closeRegisterModal.addEventListener('click', closeRegisterModalFunc);
+    
+    // 模态框背景点击关闭
+    loginModal.addEventListener('click', function(e) {
+      if (e.target === loginModal) {
+        closeLoginModalFunc();
+      }
+    });
+    
+    registerModal.addEventListener('click', function(e) {
+      if (e.target === registerModal) {
+        closeRegisterModalFunc();
+      }
+    });
+    
+    // 登录/注册切换
+    showRegister.addEventListener('click', function(e) {
+      e.preventDefault();
+      closeLoginModalFunc();
+      setTimeout(openRegisterModal, 300);
+    });
+    
+    showLogin.addEventListener('click', function(e) {
+      e.preventDefault();
+      closeRegisterModalFunc();
+      setTimeout(openLoginModal, 300);
+    });
+    
+    // 注册表单提交
+    registerSubmitBtn.addEventListener('click', function() {
+      // 获取表单数据
+      const username = document.getElementById('reg_username').value;
+      const password = document.getElementById('reg_password').value;
+      const confirmPassword = document.getElementById('reg_confirm_password').value;
+      const agreement = document.getElementById('agreement').checked;
+      
+      // 简单表单验证
+      let isValid = true;
+      
+      // 清除之前的错误提示
+      document.querySelectorAll('.error-message').forEach(el => el.remove());
+      
+      // 验证用户名
+      if (!username) {
+        showError('reg_username', '请输入用户名');
+        isValid = false;
+      } else if (registeredUsers[username]) {
+        showError('reg_username', '该用户名已被注册');
+        isValid = false;
+      }
+      
+      // 验证密码
+      if (!password) {
+        showError('reg_password', '请输入密码');
+        isValid = false;
+      } else if (password.length < 6) {
+        showError('reg_password', '密码长度至少为6位');
+        isValid = false;
+      }
+      
+      // 验证确认密码
+      if (password !== confirmPassword) {
+        showError('reg_confirm_password', '两次输入的密码不一致');
+        isValid = false;
+      }
+      
+      // 验证用户协议
+      if (!agreement) {
+        showError('agreement', '请同意用户协议和隐私政策');
+        isValid = false;
+      }
+      
+      // 如果验证通过，模拟注册提交
+      if (isValid) {
+        // 显示加载状态
+        registerSubmitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 注册中...';
+        registerSubmitBtn.disabled = true;
+        
+        // 模拟API请求延迟
+        setTimeout(function() {
+          // 保存注册用户信息
+          registeredUsers[username] = password;
+          
+          // 模拟注册成功
+          showNotification('注册成功！请记住您的用户名和密码。', 'success');
+          closeRegisterModalFunc();
+          
+          // 重置表单
+          document.getElementById('reg_username').value = '';
+          document.getElementById('reg_password').value = '';
+          document.getElementById('reg_confirm_password').value = '';
+          document.getElementById('agreement').checked = false;
+          
+          // 恢复按钮状态
+          setTimeout(function() {
+            registerSubmitBtn.innerHTML = '注册';
+            registerSubmitBtn.disabled = false;
+          }, 2000);
+        }, 1500);
+      }
+    });
+    
+    // 登录表单提交
+    loginSubmitBtn.addEventListener('click', function() {
+      const username = document.getElementById('login_username').value;
+      const password = document.getElementById('login_password').value;
+      
+      // 验证用户名和密码
+      if (!username || !password) {
+        showNotification('请填写用户名和密码', 'error');
+        return;
+      }
+      
+      // 检查用户是否已注册
+      if (!registeredUsers[username]) {
+        showNotification('该用户未注册，请先注册', 'error');
+        return;
+      }
+      
+      // 检查密码是否正确
+      if (registeredUsers[username] !== password) {
+        showNotification('密码错误，请重新输入', 'error');
+        return;
+      }
+      
+      // 显示加载状态
+      loginSubmitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 登录中...';
+      loginSubmitBtn.disabled = true;
+      
+      // 模拟API请求延迟
+      setTimeout(function() {
+        // 模拟登录成功
+        showNotification('登录成功！欢迎回来，' + username, 'success');
+        closeLoginModalFunc();
+        
+        // 保存当前用户
+        currentUser = username;
+        
+        // 更新UI显示已登录状态
+        updateLoggedInUI(username);
+        
+        // 恢复按钮状态
+        setTimeout(function() {
+          loginSubmitBtn.innerHTML = '登录';
+          loginSubmitBtn.disabled = false;
+        }, 2000);
+      }, 1500);
+    });
+    
+    // 显示错误提示
+    function showError(elementId, message) {
+      const element = document.getElementById(elementId);
+      const parent = element.parentElement;
+      
+      // 创建错误提示元素
+      const errorElement = document.createElement('div');
+      errorElement.className = 'error-message text-red-500 text-sm mt-1';
+      errorElement.textContent = message;
+      
+      // 插入错误提示
+      parent.appendChild(errorElement);
+      
+      // 添加错误状态到输入框
+      element.classList.add('border-red-500');
+      element.classList.add('focus:ring-red-200');
+      
+      // 移除错误状态
+      element.addEventListener('focus', function removeError() {
+        element.classList.remove('border-red-500');
+        element.classList.remove('focus:ring-red-200');
+        if (errorElement.parentNode) {
+          errorElement.parentNode.removeChild(errorElement);
+        }
+        element.removeEventListener('focus', removeError);
+      });
+    }
+    
+    // 显示通知
+    function showNotification(message, type = 'info') {
+      // 创建通知元素
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out translate-x-full z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
+      }`;
+      notification.innerHTML = `
+        <div class="flex items-center">
+          <i class="fa fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-2"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      // 添加到页面
+      notificationContainer.appendChild(notification);
+      
+      // 显示通知
+      setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+      }, 10);
+      
+      // 自动关闭
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 4000);
+    }
+    
+    // 更新已登录状态UI
+    function updateLoggedInUI(username) {
+      // 隐藏登录/注册按钮
+      loginBtn.classList.add('hidden');
+      registerBtn.classList.add('hidden');
+      mobileLoginBtn.classList.add('hidden');
+      mobileRegisterBtn.classList.add('hidden');
+      
+      // 创建用户菜单
+      const userMenu = document.createElement('div');
+      userMenu.className = 'relative';
+      userMenu.innerHTML = `
+        <button id="userMenuBtn" class="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-gray-100 transition-colors">
+          <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <i class="fa fa-user text-primary"></i>
+          </div>
+          <span class="hidden md:inline font-medium">${username}</span>
+          <i class="fa fa-angle-down text-gray-500"></i>
+        </button>
+        <div id="userMenuDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden z-50">
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">个人资料</a>
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">我的帖子</a>
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">收藏</a>
+          <div class="border-t border-gray-100 my-1"></div>
+          <a href="#" id="logoutBtn" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">退出登录</a>
+        </div>
+      `;
+      
+      // 添加到导航栏
+      const navItems = loginBtn.parentElement;
+      navItems.appendChild(userMenu);
+      
+      // 用户菜单切换
+      const userMenuBtn = document.getElementById('userMenuBtn');
+      const userMenuDropdown = document.getElementById('userMenuDropdown');
+      
+      userMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userMenuDropdown.classList.toggle('hidden');
+      });
+      
+      // 点击页面其他地方关闭菜单
+      document.addEventListener('click', function() {
+        userMenuDropdown.classList.add('hidden');
+      });
+      
+      // 退出登录
+      document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        showNotification('已成功退出登录', 'info');
+        
+        // 清除当前用户
+        currentUser = null;
+        
+        // 恢复登录/注册按钮
+        loginBtn.classList.remove('hidden');
+        registerBtn.classList.remove('hidden');
+        mobileLoginBtn.classList.remove('hidden');
+        mobileRegisterBtn.classList.remove('hidden');
+        
+        // 移除用户菜单
+        userMenu.remove();
+      });
+    }
+    
+    // 发布帖子
+    submitPostBtn.addEventListener('click', function() {
+      const content = postContent.value.trim();
+      const category = postCategory.value;
+      
+      if (!content) {
+        showNotification('请输入帖子内容', 'error');
+        return;
+      }
+      
+      // 检查是否已登录
+      if (!currentUser) {
+        showNotification('请先登录再发布帖子', 'error');
+        return;
+      }
+      
+      // 显示加载状态
+      submitPostBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 发布中...';
+      submitPostBtn.disabled = true;
+      
+      // 模拟API请求延迟
+      setTimeout(function() {
+        // 模拟发布成功
+        showNotification('帖子发布成功！', 'success');
+        
+        // 添加新帖子到列表顶部
+        addNewPost(content, category, currentUser);
+        
+        // 清空输入框
+        postContent.value = '';
+        
+        // 恢复按钮状态
+        setTimeout(function() {
+          submitPostBtn.innerHTML = '发布';
+          submitPostBtn.disabled = false;
+        }, 2000);
+      }, 1500);
+    });
+    
+    // 添加新帖子到列表
+    function addNewPost(content, category, author) {
+      // 创建新帖子元素
+      const newPost = document.createElement('div');
+      newPost.className = 'bg-white rounded-xl shadow-sm p-5 card-hover animate-fade-in';
+      
+      // 设置分类名称
+      let categoryName = '所有分类';
+      if (category === 'study') categoryName = '学习讨论';
+      else if (category === 'activity') categoryName = '班级活动';
+      else if (category === 'notice') categoryName = '公告通知';
+      
+      // 设置当前日期
+      const now = new Date();
+      const dateString = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+      
+      // 判断是否是当前用户发布的帖子
+      const isCurrentUser = currentUser === author;
+      const authorClass = isCurrentUser ? 'user-post' : '';
+      
+      // 设置帖子内容
+      newPost.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <i class="fa fa-user text-primary"></i>
+            </div>
+            <div>
+              <h4 class="font-bold ${authorClass}">${author}</h4>
+              <p class="text-xs text-gray-500">发布于 ${dateString} · ${categoryName}</p>
+            </div>
+          </div>
+        </div>
+        <p class="text-gray-600 mb-4">
+          ${content}
+        </p>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+              <i class="fa fa-thumbs-up mr-1"></i>
+              <span>0</span>
+            </button>
+            <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+              <i class="fa fa-comment-o mr-1"></i>
+              <span>0</span>
+            </button>
+            <button class="flex items-center text-gray-500 hover:text-primary transition-colors">
+              <i class="fa fa-eye mr-1"></i>
+              <span>0</span>
+            </button>
+          </div>
+          <button class="text-gray-500 hover:text-primary transition-colors">
+            <i class="fa fa-bookmark-o"></i>
+          </button>
+        </div>
+      `;
+      
+      // 添加到帖子列表顶部
+      postsContainer.insertBefore(newPost, postsContainer.firstChild);
+      
+      // 添加动画效果
+      setTimeout(() => {
+        newPost.classList.add('opacity-100');
+      }, 10);
+    }
+    
+    // 添加图片按钮点击事件
+    document.getElementById('addImageBtn').addEventListener('click', function() {
+      showNotification('图片上传功能将在未来版本中支持', 'info');
+    });
+    
+    // 添加链接按钮点击事件
+    document.getElementById('addLinkBtn').addEventListener('click', function() {
+      showNotification('链接插入功能将在未来版本中支持', 'info');
+    });
+  </script>
+</body>
+</html>
